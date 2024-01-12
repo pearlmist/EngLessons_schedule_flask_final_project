@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
+        <title> Запись на занятие </title>
+         {% macro render_table(table_name, relation, id) %}
+         {% set n = len(relation) %}
+         <table>
+            <tr>
+                {% for name in relation.dtypes.index %}
+                {% if name != id %}
+                <th>{{name}}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            <tbody>
+                {% for i in range(n) %}
+                <tr>
+                    {% for name in relation.dtypes.index %}
+                    {% if name != id %}
+                    <td>
+                        {% if relation.loc[i, name] != 0 %}
+                            {% if name != "Время" and name != "Преподаватель" %} <a href="#"> {% endif %}
+                            {{ relation.loc[i, name] }}
+                            {% if name != "Время" and name != "Преподаватель" %}
+                            {% if relation.loc[i, name] == 1 %} запись{% endif %}
+                            {% if relation.loc[i, name] < 5 and relation.loc[i, name] > 1%} записи{% endif %}
+                            {% if relation.loc[i, name] >= 5%} записей</a> {% endif %}
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endmacro %}
+        {% macro render_select(select_name, combo_box,lvl_name) %}
+                   <select name='{{select_name}}'>
+                        {% for i in range(len(combo_box)) %}
+                        <option value="{{i+1}}" {% if combo_box.loc[i, "level_id"] == lvl_name %} selected {%endif%}>{{combo_box.loc[i, "level_name"]}}</option>
+                        {% endfor %}
+                   </select>
+        {% endmacro %}
+    </head>
+    <p>
+    </p>
+    <body>
+        <div class=second_body>
+        <div class = head>
+            <p>Запись на занятие</p>
+        </div><form method="GET">
+        <div class = level>
+
+                <p>Уровень владения:
+                    {{ render_select("selected_level", combo_box, lvl_name) }}
+                </p>
+
+        </div>
+        <div class = block>
+            <div class=flex_start>
+                <div class=type_buttons>
+                    <button type="submit" name="selected_type" value="day" {% if cur_type == "day" %} style="background-color: #F2A6A6;"{% endif %}>Дни:</button>
+                    <button type="submit" name="selected_type" value="teacher" {% if cur_type == "teacher" %} style="background-color: #F2A6A6;"{% endif %}>Преподаватели:</button>
+                    <input type="hidden" name="current_type" value="{{cur_type}}">
+                </div>
+
+                    <div class=start_n_days>
+                        <label>Запись с: <input type="date" name="start_date" value={{cur_date}}></label>
+                        <label>на <input type="number" name="count_days" min="1" max="7" value="{{cnt_days}}"> дней</label>
+                        <button type="submit" name="show_with_date" value="selected_date">Показать</button>
+                    </div>
+
+            </div>
+            {{ render_table("Дни", lessons, "teacher") }}
+        </div>
+        </form>
+        </div>
+
+    </body>
+</html>
